@@ -5,10 +5,18 @@ import time
 
 class ExoGUI:
     def __init__(self):
+        # parameters
+        self.window_seconds = 30 # windows second (s)
+        self.update_interval = 500 # Interval (ms)
+
+        #set up gui
         self.root = tk.Tk()
         self.root.title("Exoskeleton Monitor GUI")
-        self.root.protocol("WM_DELETE_WINDOW", self.on_close)  # 处理关闭事件
+        self.root.protocol("WM_DELETE_WINDOW", self.on_close) 
         
+        # max data point
+        self.max_data_points = int(self.window_seconds * 1000 / self.update_interval)
+
         # Storing
         self.time_data = []
         self.torque_data = []
@@ -59,6 +67,14 @@ class ExoGUI:
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.root)
         self.canvas.get_tk_widget().pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
 
+    def update_data_buffer(self):
+        current_size = len(self.time_data)
+
+        # cut the edge
+        if current_size > self.max_data_points:
+            self.time_data = self.time_data[-self.max_data_points:]
+            self.torque_data = self.torque_data[-self.max_data_points:]
+
     def update(self, sensor_active, torque, gait_phase):
         # update the graph
         sensor_status = "Activated" if sensor_active else "Inactive"
@@ -70,16 +86,16 @@ class ExoGUI:
         current_time = time.time() - self.start_time
         self.time_data.append(current_time)
         self.torque_data.append(torque)
-        
-        # take the 30s data
-        if len(self.time_data) > 60:  # 0.5 s 
-            self.time_data = self.time_data[-60:]
-            self.torque_data = self.torque_data[-60:]
+
+        # Cut the edge
+        self.update_data_buffer()
         
         self.line.set_data(self.time_data, self.torque_data)
         self.ax.relim()
         self.ax.autoscale_view()
         self.canvas.draw()
+
+        #writing data
         # self.data_log.write(f"{time.time()},{torque},{gait_phase}\n")
     def simulate_data_update(self):
         simulated_torque = 20 + 5 * (time.time() % 3)  
