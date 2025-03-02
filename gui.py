@@ -4,8 +4,8 @@ from tkinter import ttk
 class ExoGUI:
     def __init__(self):
         self.root = tk.Tk()
-        self.root.title("Exoskeleton Monitor GUI")
-
+        self.root.title("GUI")
+        self.root.protocol("WM_DELETE_WINDOW", self.on_close)
         # Main container using grid layout
         self.main_frame = ttk.Frame(self.root, padding="20")
         self.main_frame.pack(fill=tk.BOTH, expand=True)
@@ -50,7 +50,7 @@ class ExoGUI:
                                        highlightthickness=0)
         self.torque_canvas.pack(pady=10)
 
-        # Create initial torque bar
+        # Create initial torque bar which is a rectangle
         self.bar_width = 40
         self.torque_bar = self.torque_canvas.create_rectangle(
             (self.canvas_width - self.bar_width) // 2, self.canvas_height,  # x1, y1
@@ -105,19 +105,3 @@ class ExoGUI:
     def on_close(self):
         self.root.quit()
         self.root.destroy()
-if __name__ == "__main__":
-    gui = ExoGUI()
-
-
-    # Example simulation (remove in actual implementation)
-    def simulate_torque():
-        torque = 0
-        # while True:
-        #     gui.update_torque(torque)
-        #     torque = (torque + 1) % 101
-        #     gui.root.update()
-        #     gui.root.after(50)
-
-
-    gui.root.after(100, simulate_torque)
-    gui.run()
